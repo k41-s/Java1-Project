@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Optional;
@@ -377,11 +376,11 @@ public class EditEventsPanel extends javax.swing.JPanel {
         }
     }
     private void tbArticlesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbArticlesMouseClicked
-        showArticle();
+        showEvent();
     }//GEN-LAST:event_tbArticlesMouseClicked
 
     private void tbArticlesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tbArticlesKeyReleased
-        showArticle();
+        showEvent();
     }//GEN-LAST:event_tbArticlesKeyReleased
 
     // init() cannot be done in JPanel constructor, but when the form is shown!
@@ -461,7 +460,7 @@ public class EditEventsPanel extends javax.swing.JPanel {
             errorLabels.get(i).setVisible(validationFields.get(i).getText().trim().isEmpty());
             if ("Date".equals(validationFields.get(i).getName())) {
                 try {
-                    LocalDateTime.parse(validationFields.get(i).getText().trim(), Event.DATE_FORMATTER);
+                    OffsetDateTime.parse(validationFields.get(i).getText().trim(), Event.DATE_FORMATTER);
                 } catch (Exception e) {
                     ok = false;
                     errorLabels.get(i).setVisible(true);
@@ -488,16 +487,16 @@ public class EditEventsPanel extends javax.swing.JPanel {
         return localPicturePath;
     }
 
-    private void showArticle() {
+    private void showEvent() {
         clearForm();
         int selectedRow = tbArticles.getSelectedRow();
         int rowIndex = tbArticles.convertRowIndexToModel(selectedRow);
         int selectedEventId = (int) eventsTableModel.getValueAt(rowIndex, 0);
 
         try {
-            Optional<Event> optArticle = repository.selectEvent(selectedEventId);
-            if (optArticle.isPresent()) {
-                selectedEvent = optArticle.get();
+            Optional<Event> optEvent = repository.selectEvent(selectedEventId);
+            if (optEvent.isPresent()) {
+                selectedEvent = optEvent.get();
                 fillForm(selectedEvent);
             }
         } catch (Exception ex) {

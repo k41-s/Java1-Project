@@ -8,12 +8,18 @@ import hr.algebra.dal.Repository;
 import hr.algebra.dal.RepositoryFactory;
 import hr.algebra.model.Event;
 import hr.algebra.model.EventArchive;
+import hr.algebra.model.User;
 import hr.algebra.parsers.rss.EventParser;
+import hr.algebra.session.Session;
 import hr.algebra.utilities.JAXBUtils;
 import hr.algebra.utilities.MessageUtils;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +35,9 @@ import javax.xml.stream.XMLStreamException;
 public class UploadEventsPanel extends javax.swing.JPanel {
 
     private static final String RSS_URL = "https://www.cedefop.europa.eu/en/publications.rss";
+
+    private User currentUser = Session.getCurrentUser();
+    private boolean isAdmin = currentUser.getIsAdmin();
 
     /**
      * Creates new form UploadArticlesPanel
@@ -49,6 +58,9 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         lsArticles = new javax.swing.JList<>();
         btnUploadEvents = new javax.swing.JButton();
+        lbUsername = new javax.swing.JLabel();
+        JLabel1 = new javax.swing.JLabel();
+        btnDeleteAll = new javax.swing.JButton();
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -65,25 +77,51 @@ public class UploadEventsPanel extends javax.swing.JPanel {
             }
         });
 
+        JLabel1.setText("Logged in as");
+
+        btnDeleteAll.setBackground(new java.awt.Color(204, 0, 51));
+        btnDeleteAll.setText("Delete All Events");
+        btnDeleteAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteAllActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 1160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(JLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lbUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 525, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 525, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1160, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 499, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(JLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -92,7 +130,7 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         new Thread(() -> {
 
             try {
-                
+
 //                ParseEvents();
                 JAXBParseEvents();
 
@@ -112,8 +150,8 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         loadModel();
     }
 
-    private void ParseEvents() throws XMLStreamException, IOException, Exception {
-        
+    private void parseEvents() throws XMLStreamException, IOException, Exception {
+
         // Regular events parser
         List<Event> events = EventParser.parse();
         repository.createEvents(events);
@@ -124,10 +162,30 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         init();
     }//GEN-LAST:event_formComponentShown
 
+    private void btnDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllActionPerformed
+
+        if (MessageUtils.showConfirmDialog(
+                "Delete event",
+                "Do you really want to delete all events?")) {
+            try {
+
+                deleteAllEvents();
+                loadModel(); // Just to make sure current DB is shown (nothing)
+
+            } catch (Exception ex) {
+                Logger.getLogger(EditEventsPanel.class.getName()).log(Level.SEVERE, null, ex);
+                MessageUtils.showErrorMessage("Error", "Unable to delete events!");
+            }
+        }
+    }//GEN-LAST:event_btnDeleteAllActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel JLabel1;
+    private javax.swing.JButton btnDeleteAll;
     private javax.swing.JButton btnUploadEvents;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lbUsername;
     private javax.swing.JList<hr.algebra.model.Event> lsArticles;
     // End of variables declaration//GEN-END:variables
 
@@ -138,6 +196,12 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         try {
             repository = RepositoryFactory.getRepository();
             eventsModel = new DefaultListModel<>();
+
+            lbUsername.setText(currentUser.getUsername());
+            if (isAdmin) {
+                lbUsername.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            }
+
             loadModel();
         } catch (Exception ex) {
             Logger.getLogger(UploadEventsPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -147,6 +211,7 @@ public class UploadEventsPanel extends javax.swing.JPanel {
     }
 
     private void loadModel() throws Exception {
+
         List<Event> events = repository.selectEvents();
 
         EventQueue.invokeLater(() -> {
@@ -155,6 +220,17 @@ public class UploadEventsPanel extends javax.swing.JPanel {
             events.forEach(eventsModel::addElement);
             lsArticles.setModel(eventsModel);
         });
+    }
+
+    private void deleteAllEvents() throws Exception {
+        List<Event> events = repository.selectEvents();
+
+        // For some reason using lambda made me try catch, the throws 
+        // clause didn't fix the error so I looped like this
+        for (Event event : events) {
+            repository.deleteEvent(event.getId());
+        }
+
     }
 
 }

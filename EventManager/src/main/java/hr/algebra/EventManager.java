@@ -4,8 +4,11 @@
  */
 package hr.algebra;
 
+import hr.algebra.model.User;
+import hr.algebra.session.Session;
 import hr.algebra.view.EditEventsPanel;
 import hr.algebra.view.UploadEventsPanel;
+import java.awt.Component;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,8 +27,14 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class EventManager extends javax.swing.JFrame {
 
-    private static final String UPLOAD_ARTICLES = "Upload events";
-    private static final String EDIT_ARTICLES = "Edit events";
+    private static final String UPLOAD_EVENTS = "Upload events";
+    private static final String EDIT_EVENTS = "Edit events";
+
+    private final User currentUser = Session.getCurrentUser();
+    private final boolean isAdmin = currentUser.getIsAdmin();
+    
+    private final Component UploadPanel = new UploadEventsPanel();
+    private final Component EditPanel = new EditEventsPanel();
 
     /**
      * Creates new form ArticleManager
@@ -33,6 +42,7 @@ public class EventManager extends javax.swing.JFrame {
     public EventManager() {
         initComponents();
         configurePanels();
+        configureMenuBar();
         handleLookAndFeel();
     }
 
@@ -47,14 +57,14 @@ public class EventManager extends javax.swing.JFrame {
 
         tpContent = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
+        menuOptions = new javax.swing.JMenu();
         miClose = new javax.swing.JMenuItem();
         menuLF = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(1200, 700));
 
-        jMenu1.setText("Options");
+        menuOptions.setText("Options");
 
         miClose.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
         miClose.setText("Close");
@@ -63,9 +73,9 @@ public class EventManager extends javax.swing.JFrame {
                 miCloseActionPerformed(evt);
             }
         });
-        jMenu1.add(miClose);
+        menuOptions.add(miClose);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(menuOptions);
 
         menuLF.setText("Look and Feel");
         jMenuBar1.add(menuLF);
@@ -128,19 +138,23 @@ public class EventManager extends javax.swing.JFrame {
 //    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenu menuLF;
+    private javax.swing.JMenu menuOptions;
     private javax.swing.JMenuItem miClose;
     private javax.swing.JTabbedPane tpContent;
     // End of variables declaration//GEN-END:variables
 
     private void configurePanels() {
-        tpContent.add(UPLOAD_ARTICLES, new UploadEventsPanel());
-        tpContent.add(EDIT_ARTICLES, new EditEventsPanel());
+        if (isAdmin) {
+            tpContent.add(UPLOAD_EVENTS, UploadPanel);
+        } else {
+            tpContent.add(EDIT_EVENTS, EditPanel);
+            // Other user panels go here when made
+        }
     }
-    
-    private JMenuItem createMenuItem(Action action, String text, KeyStroke accelerator){
+
+    private JMenuItem createMenuItem(Action action, String text, KeyStroke accelerator) {
         JMenuItem menuItem = new JMenuItem();
         menuItem.setAction(action);
         menuItem.setText(text);
@@ -154,23 +168,27 @@ public class EventManager extends javax.swing.JFrame {
             JRadioButtonMenuItem mi = new JRadioButtonMenuItem(lf.getName());
             bgLookFeel.add(mi);
             menuLF.add(mi);
-            
-            if("Numbus".equals(lf.getName())){
+
+            if ("Nimbus".equals(lf.getName())) {
                 mi.setSelected(true);
             }
-            
+
             mi.addActionListener(e -> {
-                try{
+                try {
                     UIManager.setLookAndFeel(lf.getClassName());
                     SwingUtilities.updateComponentTreeUI(EventManager.this);
-                }catch(ClassNotFoundException | 
-                        InstantiationException |
-                        IllegalAccessException |
-                        UnsupportedLookAndFeelException ex)
-                {
+                } catch (ClassNotFoundException
+                        | InstantiationException
+                        | IllegalAccessException
+                        | UnsupportedLookAndFeelException ex) {
                     Logger.getLogger(EventManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
         });
+    }
+
+    // Figure this out
+    private void configureMenuBar() {
+        
     }
 }

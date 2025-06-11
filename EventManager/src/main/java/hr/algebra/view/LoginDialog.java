@@ -7,9 +7,15 @@ package hr.algebra.view;
 import hr.algebra.EventManager;
 import hr.algebra.dal.Repository;
 import hr.algebra.dal.RepositoryFactory;
+import hr.algebra.dal.sql.LoginService;
+import hr.algebra.model.User;
+import hr.algebra.session.Session;
 import hr.algebra.utilities.MessageUtils;
+import java.awt.EventQueue;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
@@ -20,12 +26,15 @@ import javax.swing.text.JTextComponent;
  * @author kaish
  */
 public class LoginDialog extends javax.swing.JDialog {
-    
+
     private List<JTextComponent> validationFields;
     private List<JLabel> errorLabels;
 
     private Repository repository;
-    
+    private LoginService loginService;
+
+    private User user;
+
     /**
      * Creates new form LoginDialog
      */
@@ -47,9 +56,9 @@ public class LoginDialog extends javax.swing.JDialog {
         tfUsername = new javax.swing.JTextField();
         lbUsernameError = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        tfPassword = new javax.swing.JTextField();
         lbPasswordError = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        pfPassword = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -75,6 +84,12 @@ public class LoginDialog extends javax.swing.JDialog {
 
         jLabel4.setText("Password");
 
+        pfPassword.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -82,23 +97,23 @@ public class LoginDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(tfUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(36, 36, 36)
-                                .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(18, 18, 18)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lbUsernameError, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbPasswordError, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(52, 52, 52))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(144, 144, 144))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(tfUsername)
+                            .addComponent(pfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbUsernameError, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbPasswordError, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(16, 16, 16))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -110,9 +125,9 @@ public class LoginDialog extends javax.swing.JDialog {
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbPasswordError, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
                 .addComponent(btnLogin)
                 .addGap(28, 28, 28))
@@ -123,15 +138,19 @@ public class LoginDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        Login();
-        
-        dispose();
-        new EventManager().setVisible(true);
+
+        TryLogin();
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
         init();
     }//GEN-LAST:event_formComponentShown
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            TryLogin();
+        }
+    }//GEN-LAST:event_formKeyReleased
 
     /**
      * @param args the command line arguments
@@ -164,7 +183,7 @@ public class LoginDialog extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 LoginDialog dialog = new LoginDialog(new javax.swing.JFrame(), true);
-                
+
                 dialog.setVisible(true);
             }
         });
@@ -176,7 +195,7 @@ public class LoginDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel lbPasswordError;
     private javax.swing.JLabel lbUsernameError;
-    private javax.swing.JTextField tfPassword;
+    private javax.swing.JPasswordField pfPassword;
     private javax.swing.JTextField tfUsername;
     // End of variables declaration//GEN-END:variables
 
@@ -185,6 +204,7 @@ public class LoginDialog extends javax.swing.JDialog {
             initValidation();
             hideErrors();
             initRepository();
+            initLoginService();
         } catch (Exception ex) {
             Logger.getLogger(EditEventsPanel.class.getName()).log(Level.SEVERE, null, ex);
             MessageUtils.showErrorMessage("Unrecoverable error", "Cannot initiate the form");
@@ -193,7 +213,7 @@ public class LoginDialog extends javax.swing.JDialog {
     }
 
     private void initValidation() {
-        validationFields = Arrays.asList(tfUsername, tfPassword);
+        validationFields = Arrays.asList(tfUsername, pfPassword);
         errorLabels = Arrays.asList(lbUsernameError, lbPasswordError);
     }
 
@@ -205,7 +225,66 @@ public class LoginDialog extends javax.swing.JDialog {
         repository = RepositoryFactory.getRepository();
     }
 
-    private void Login() {
-        // Handle Login logic
+    private void initLoginService() {
+        loginService = new LoginService();
     }
+
+    private void TryLogin() {
+        try {
+
+            if (!formValid()) {
+                return;
+            }
+
+            boolean loginSuccess = Login();
+
+            // only open if login worked
+            if (loginSuccess) {
+                dispose();
+                new EventManager().setVisible(true);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
+            MessageUtils.showErrorMessage("Login Failed", "Login Failed, try again");
+            System.exit(1);
+        }
+    }
+
+    private boolean Login() throws Exception {
+
+        boolean successful;
+
+        Optional<User> opt
+                = loginService.selectUser(tfUsername.getText().trim());
+
+        if (opt.isPresent() && authenticateUser(opt)) {
+            user = opt.get();
+            Session.setCurrentUser(user);
+            successful = true;
+        } else {
+            MessageUtils.showErrorMessage("Incorret Credentials", "Invalid credentials entered");
+            successful = false;
+            errorLabels.forEach(l -> l.setVisible(true));
+        }
+
+        return successful;
+    }
+
+    private boolean authenticateUser(Optional<User> opt) {
+        return opt.get().getPassword().equals(pfPassword.getText().trim());
+    }
+
+    private boolean formValid() {
+        hideErrors();
+        boolean ok = true;
+
+        // Only need to check empty fields
+        for (int i = 0; i < validationFields.size(); i++) {
+            ok &= !validationFields.get(i).getText().trim().isEmpty();
+            errorLabels.get(i).setVisible(validationFields.get(i).getText().trim().isEmpty());
+        }
+
+        return ok;
+    }
+
 }
