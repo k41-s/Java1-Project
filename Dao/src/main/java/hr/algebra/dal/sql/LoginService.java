@@ -26,7 +26,7 @@ public class LoginService {
     
     // Procedure created in SQL, this should work. 
     // No implementation yet of loginService
-    public Optional<User> selectEvent(String username) throws Exception {
+    public Optional<User> selectUser(String username) throws Exception {
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(SELECT_USER)) {
 

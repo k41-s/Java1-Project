@@ -10,12 +10,12 @@ package hr.algebra.model;
  */
 public class User {
     
-    private int ID;
+    private final int ID;
     private String Username;
     private String Password;
-    private Boolean IsAdmin;
+    private boolean IsAdmin;
     
-    public User(int id, String username, String password, Boolean isAdmin){
+    public User(int id, String username, String password, boolean isAdmin){
         this.ID = id;
         this.Username = username;
         this.Password = password;
@@ -42,11 +42,11 @@ public class User {
         this.Password = Password;
     }
 
-    public Boolean getIsAdmin() {
+    public boolean getIsAdmin() {
         return IsAdmin;
     }
 
-    public void setIsAdmin(Boolean IsAdmin) {
+    public void setIsAdmin(boolean IsAdmin) {
         this.IsAdmin = IsAdmin;
     }
 
