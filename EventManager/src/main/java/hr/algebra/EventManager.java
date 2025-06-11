@@ -58,7 +58,7 @@ public class EventManager extends javax.swing.JFrame {
         tpContent = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuOptions = new javax.swing.JMenu();
-        miClose = new javax.swing.JMenuItem();
+        miExit = new javax.swing.JMenuItem();
         menuLF = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -66,14 +66,14 @@ public class EventManager extends javax.swing.JFrame {
 
         menuOptions.setText("Options");
 
-        miClose.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
-        miClose.setText("Close");
-        miClose.addActionListener(new java.awt.event.ActionListener() {
+        miExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
+        miExit.setText("Exit");
+        miExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miCloseActionPerformed(evt);
+                miExitActionPerformed(evt);
             }
         });
-        menuOptions.add(miClose);
+        menuOptions.add(miExit);
 
         jMenuBar1.add(menuOptions);
 
@@ -97,9 +97,10 @@ public class EventManager extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void miCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miCloseActionPerformed
+    private void miExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miExitActionPerformed
         this.dispose();
-    }//GEN-LAST:event_miCloseActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_miExitActionPerformed
 
     /**
      * @param args the command line arguments
@@ -141,7 +142,7 @@ public class EventManager extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenu menuLF;
     private javax.swing.JMenu menuOptions;
-    private javax.swing.JMenuItem miClose;
+    private javax.swing.JMenuItem miExit;
     private javax.swing.JTabbedPane tpContent;
     // End of variables declaration//GEN-END:variables
 
