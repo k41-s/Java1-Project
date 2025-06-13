@@ -8,11 +8,11 @@ package hr.algebra.view;
 import hr.algebra.dal.Repository;
 import hr.algebra.dal.RepositoryFactory;
 import hr.algebra.model.Channel;
-import hr.algebra.model.OrganiserTransferable;
-import hr.algebra.model.Organiser;
-import hr.algebra.model.OrganiserAddable;
+import hr.algebra.model.VenueTransferable;
 import hr.algebra.model.Event;
 import hr.algebra.model.EventArchive;
+import hr.algebra.model.Venue;
+import hr.algebra.model.VenueAddable;
 import hr.algebra.utilities.JAXBUtils;
 import hr.algebra.utilities.MessageUtils;
 import java.awt.datatransfer.Transferable;
@@ -40,31 +40,31 @@ import javax.swing.TransferHandler;
  *
  * @author kaish
  */
-public class EventsOrganiserPanel extends javax.swing.JPanel implements OrganiserAddable {
+public class EventsVenuePanel extends javax.swing.JPanel implements VenueAddable {
 
     private static final String FILENAME = "src/main/resources/eventarchive.xml";
 
     private List<JTextField> validationFields;
     private List<JLabel> errorLabels;
 
-    private Set<Organiser> allOrganisers = new TreeSet<>();
-    private Organiser organiser;
+    private Set<Venue> allVenues = new TreeSet<>();
+    private Venue venue;
     private List<Event> events = new ArrayList<>();
 
-    private final DefaultListModel<Organiser> allOrganisersModel = new DefaultListModel<>();
-    private final DefaultListModel<Organiser> organisersModel = new DefaultListModel<>();
+    private final DefaultListModel<Venue> allVenuesModel = new DefaultListModel<>();
+    private final DefaultListModel<Venue> venuesModel = new DefaultListModel<>();
     private final DefaultListModel<Event> eventsModel = new DefaultListModel<>();
 
     private Repository<Event> eventRepo;
-    private Repository<Organiser> organiserRepo;
+    private Repository<Venue> venueRepo;
 
     /**
      * Creates new form EventManager
      */
-    public EventsOrganiserPanel() {
+    public EventsVenuePanel() {
         initComponents();
         init();
-        loadEventsAndOrganisers();
+        loadEventsAndVenues();
     }
 
     /**
@@ -77,29 +77,29 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        lsOrganisers = new javax.swing.JList<>();
+        lsVenues = new javax.swing.JList<>();
         jLabel2 = new javax.swing.JLabel();
         tfTitle = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         lbTitleError = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        lsAllOrganisers = new javax.swing.JList<>();
+        lsAllVenues = new javax.swing.JList<>();
         jScrollPane3 = new javax.swing.JScrollPane();
         lsEvents = new javax.swing.JList<>();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         btnSaveEvents = new javax.swing.JButton();
-        btnAddOrganiser = new javax.swing.JButton();
+        btnAddVenue = new javax.swing.JButton();
         btnAddEvent = new javax.swing.JButton();
         btnRefreshEvents = new javax.swing.JButton();
-        lbOrganisersError = new javax.swing.JLabel();
+        lbVenuesError = new javax.swing.JLabel();
         tfDesc = new javax.swing.JTextField();
         lbDescError = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1192, 611));
 
-        jScrollPane1.setViewportView(lsOrganisers);
+        jScrollPane1.setViewportView(lsVenues);
 
         jLabel2.setText("Title");
 
@@ -110,13 +110,13 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
         lbTitleError.setForeground(new java.awt.Color(255, 0, 0));
         lbTitleError.setText("X");
 
-        jScrollPane2.setViewportView(lsAllOrganisers);
+        jScrollPane2.setViewportView(lsAllVenues);
 
         jScrollPane3.setViewportView(lsEvents);
 
-        jLabel10.setText("Organiser");
+        jLabel10.setText("Venue");
 
-        jLabel11.setText("All Organisers");
+        jLabel11.setText("All Venues");
 
         btnSaveEvents.setText("Save Events");
         btnSaveEvents.setPreferredSize(new java.awt.Dimension(114, 23));
@@ -126,10 +126,10 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
             }
         });
 
-        btnAddOrganiser.setText("Add Organiser");
-        btnAddOrganiser.addActionListener(new java.awt.event.ActionListener() {
+        btnAddVenue.setText("Add Venue");
+        btnAddVenue.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddOrganiserActionPerformed(evt);
+                btnAddVenueActionPerformed(evt);
             }
         });
 
@@ -148,8 +148,8 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
             }
         });
 
-        lbOrganisersError.setForeground(new java.awt.Color(255, 0, 0));
-        lbOrganisersError.setText("X");
+        lbVenuesError.setForeground(new java.awt.Color(255, 0, 0));
+        lbVenuesError.setText("X");
 
         lbDescError.setForeground(new java.awt.Color(255, 0, 0));
         lbDescError.setText("X");
@@ -183,17 +183,17 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lbTitleError, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel2))
-                        .addGap(67, 67, 67)
+                        .addGap(52, 52, 52)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel10)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lbOrganisersError, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(50, 50, 50)))
+                        .addComponent(lbVenuesError, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(65, 65, 65)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
                     .addComponent(jLabel11)
-                    .addComponent(btnAddOrganiser, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnAddVenue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(64, 64, 64))
         );
         layout.setVerticalGroup(
@@ -221,7 +221,7 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
                                 .addComponent(jLabel10)
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lbOrganisersError, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lbVenuesError, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnAddEvent, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -238,14 +238,14 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(btnAddOrganiser, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(btnAddVenue, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(60, Short.MAX_VALUE))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnAddOrganiserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddOrganiserActionPerformed
-        new OrganiserDialog((JFrame) SwingUtilities.getWindowAncestor(this), this, false).setVisible(true);
-    }//GEN-LAST:event_btnAddOrganiserActionPerformed
+    private void btnAddVenueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddVenueActionPerformed
+        new VenueDialog((JFrame) SwingUtilities.getWindowAncestor(this), this, false).setVisible(true);
+    }//GEN-LAST:event_btnAddVenueActionPerformed
 
     private void btnAddEventActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddEventActionPerformed
         try {
@@ -254,7 +254,7 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
                         tfTitle.getText().trim(),
                         tfDesc.getText().trim(),
                         OffsetDateTime.now(),
-                        organiser
+                        venue
                 );
                 eventRepo.create(event);
                 loadEventsModel();
@@ -266,7 +266,7 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
     }//GEN-LAST:event_btnAddEventActionPerformed
 
     private void btnRefreshEventsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshEventsActionPerformed
-        loadEventsAndOrganisers();
+        loadEventsAndVenues();
     }//GEN-LAST:event_btnRefreshEventsActionPerformed
 
     private void btnSaveEventsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveEventsActionPerformed
@@ -275,7 +275,7 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
             MessageUtils.showInformationMessage("Info", "Events saved");
         } catch (Exception ex) {
             MessageUtils.showErrorMessage("Error", "Unable to save events");
-            Logger.getLogger(EventsOrganiserPanel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EventsVenuePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnSaveEventsActionPerformed
 
@@ -296,14 +296,22 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EventsOrganiserPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EventsVenuePanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EventsOrganiserPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EventsVenuePanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EventsOrganiserPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EventsVenuePanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EventsOrganiserPanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(EventsVenuePanel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -316,14 +324,14 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new EventsOrganiserPanel().setVisible(true);
+                new EventsVenuePanel().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddEvent;
-    private javax.swing.JButton btnAddOrganiser;
+    private javax.swing.JButton btnAddVenue;
     private javax.swing.JButton btnRefreshEvents;
     private javax.swing.JButton btnSaveEvents;
     private javax.swing.JLabel jLabel10;
@@ -335,11 +343,11 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel lbDescError;
-    private javax.swing.JLabel lbOrganisersError;
     private javax.swing.JLabel lbTitleError;
-    private javax.swing.JList<Organiser> lsAllOrganisers;
+    private javax.swing.JLabel lbVenuesError;
+    private javax.swing.JList<Venue> lsAllVenues;
     private javax.swing.JList<Event> lsEvents;
-    private javax.swing.JList<Organiser> lsOrganisers;
+    private javax.swing.JList<Venue> lsVenues;
     private javax.swing.JTextField tfDesc;
     private javax.swing.JTextField tfTitle;
     // End of variables declaration//GEN-END:variables
@@ -347,7 +355,7 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
     private void init() {
 
         eventRepo = RepositoryFactory.getEventRepository();
-        organiserRepo = RepositoryFactory.getOrganiserRepository();
+        venueRepo = RepositoryFactory.getVenueRepository();
 
         initValidation();
         hideErrors();
@@ -361,22 +369,22 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
 
     private void hideErrors() {
         errorLabels.forEach(e -> e.setVisible(false));
-        lbOrganisersError.setVisible(false);
+        lbVenuesError.setVisible(false);
     }
 
-    private void loadAllOrganisersModel() throws Exception {
-        allOrganisersModel.clear();
+    private void loadAllVenuesModel() throws Exception {
+        allVenuesModel.clear();
 
-        allOrganisers = new TreeSet<>(organiserRepo.selectAll());
+        allVenues = new TreeSet<>(venueRepo.selectAll());
 
-        allOrganisers.forEach(allOrganisersModel::addElement);
-        lsAllOrganisers.setModel(allOrganisersModel);
+        allVenues.forEach(allVenuesModel::addElement);
+        lsAllVenues.setModel(allVenuesModel);
     }
 
-    private void loadOrganisersModel() {
-        organisersModel.clear();
-        organisersModel.addElement(organiser);
-        lsOrganisers.setModel(organisersModel);
+    private void loadVenuesModel() {
+        venuesModel.clear();
+        venuesModel.addElement(venue);
+        lsVenues.setModel(venuesModel);
     }
 
     private void loadEventsModel() throws Exception {
@@ -389,27 +397,40 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
     }
 
     private void initDragNDrop() {
-        lsAllOrganisers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lsAllOrganisers.setDragEnabled(true);
-        lsAllOrganisers.setTransferHandler(new ExportTransferHandler());
+        lsAllVenues.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        lsAllVenues.setDragEnabled(true);
+        lsAllVenues.setTransferHandler(new ExportTransferHandler());
 
-        lsOrganisers.setDropMode(DropMode.ON);
-        lsOrganisers.setTransferHandler(new ImportTransferHandler());
+        lsVenues.setDropMode(DropMode.ON);
+        lsVenues.setTransferHandler(new ImportTransferHandler());
     }
 
-    private void loadEventsAndOrganisers() {
+    private void loadEventsAndVenues() {
         try {
             events = eventRepo.selectAll();
 
-            allOrganisers = new TreeSet<>(organiserRepo.selectAll());
+            allVenues = new TreeSet<>(venueRepo.selectAll());
 
             loadEventsModel();
-            loadAllOrganisersModel();
+            loadAllVenuesModel();
 
         } catch (Exception ex) {
             MessageUtils.showErrorMessage("Error", "Unable to load some elements, your functionality may be limited" + ex.getMessage());
-            Logger.getLogger(EventsOrganiserPanel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EventsVenuePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public boolean addVenue(Venue venue) {
+        try {
+            venueRepo.create(venue);
+            
+            loadAllVenuesModel();
+            return true;
+        } catch (Exception e) {
+            MessageUtils.showErrorMessage("Error", "Error adding venue");
+        }
+        return false;
     }
 
     private class ExportTransferHandler extends TransferHandler {
@@ -421,7 +442,7 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
 
         @Override
         public Transferable createTransferable(JComponent c) {
-            return new OrganiserTransferable(lsAllOrganisers.getSelectedValue());
+            return new VenueTransferable(lsAllVenues.getSelectedValue());
         }
     }
 
@@ -429,22 +450,22 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
 
         @Override
         public boolean canImport(TransferSupport support) {
-            return support.isDataFlavorSupported(OrganiserTransferable.ORGANISER_FLAVOR);
+            return support.isDataFlavorSupported(VenueTransferable.VENUE_FLAVOR);
         }
 
         @Override
         public boolean importData(TransferSupport support) {
             Transferable transferable = support.getTransferable();
             try {
-                Organiser add = (Organiser) transferable.getTransferData(OrganiserTransferable.ORGANISER_FLAVOR);
+                Venue add = (Venue) transferable.getTransferData(VenueTransferable.VENUE_FLAVOR);
 
-                organiser = add;
+                venue = add;
                 
-                loadOrganisersModel();
+                loadVenuesModel();
                 return true;
 
             } catch (UnsupportedFlavorException | IOException ex) {
-                Logger.getLogger(EventsOrganiserPanel.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EventsVenuePanel.class.getName()).log(Level.SEVERE, null, ex);
             }
             return false;
         }
@@ -458,8 +479,8 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
             ok &= !validationFields.get(i).getText().trim().isEmpty();
             errorLabels.get(i).setVisible(validationFields.get(i).getText().trim().isEmpty());
         }
-        if (lsOrganisers.getModel().getSize() == 0) {
-            lbOrganisersError.setVisible(true);
+        if (lsVenues.getModel().getSize() == 0) {
+            lbVenuesError.setVisible(true);
             ok = false;
         }
 
@@ -469,23 +490,10 @@ public class EventsOrganiserPanel extends javax.swing.JPanel implements Organise
     private void clearForm() {
         hideErrors();
         validationFields.forEach(e -> e.setText(""));
-        organisersModel.clear();
-        organiser = null;
-        lsAllOrganisers.clearSelection();
+        venuesModel.clear();
+        venue = null;
+        lsAllVenues.clearSelection();
     }
 
-    @Override
-    public boolean addOrganiser(Organiser organiser) {
-        try {
-            organiserRepo.create(organiser);
-
-            loadAllOrganisersModel();
-            return true;
-
-        } catch (Exception e) {
-            MessageUtils.showErrorMessage("Error", "Error adding organiser");
-        }
-        return false;
-    }
 
 }

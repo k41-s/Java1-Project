@@ -8,6 +8,7 @@ import hr.algebra.model.User;
 import hr.algebra.session.Session;
 import hr.algebra.view.EditEventsPanel;
 import hr.algebra.view.EventsOrganiserPanel;
+import hr.algebra.view.EventsVenuePanel;
 import hr.algebra.view.UploadEventsPanel;
 import java.awt.Component;
 import java.util.Arrays;
@@ -15,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
@@ -32,6 +32,7 @@ public class EventManager extends javax.swing.JFrame {
     private static final String UPLOAD_EVENTS = "Upload events";
     private static final String EDIT_EVENTS = "Edit events";
     private static final String EDIT_EVENTS_ORGS = "Edit events' organisers";
+    private static final String EDIT_EVENTS_VENUE = "Edit events' venues";
 
     private final User currentUser = Session.getCurrentUser();
     private final boolean isAdmin = currentUser.getIsAdmin();
@@ -152,6 +153,7 @@ public class EventManager extends javax.swing.JFrame {
         } else {
             tpContent.add(EDIT_EVENTS, new EditEventsPanel());
             tpContent.add(EDIT_EVENTS_ORGS, new EventsOrganiserPanel());
+            tpContent.add(EDIT_EVENTS_VENUE, new EventsVenuePanel());
             // Other user panels go here when made
         }
     }

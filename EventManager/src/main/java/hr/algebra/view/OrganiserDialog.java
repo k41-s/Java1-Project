@@ -63,7 +63,7 @@ public class OrganiserDialog extends javax.swing.JDialog {
         lbPhoneError = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Add Author");
+        setTitle("Add Organiser");
 
         jLabel1.setText("Email");
 

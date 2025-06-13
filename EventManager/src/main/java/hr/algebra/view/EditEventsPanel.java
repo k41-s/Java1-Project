@@ -73,7 +73,6 @@ public class EditEventsPanel extends javax.swing.JPanel {
         taDescription = new javax.swing.JTextArea();
         jLabel8 = new javax.swing.JLabel();
         tfPublishedDate = new javax.swing.JTextField();
-        lbPublishedDateError = new javax.swing.JLabel();
         tfPicturePath = new javax.swing.JTextField();
         btnChooseImage = new javax.swing.JButton();
         btnAdd = new javax.swing.JButton();
@@ -134,12 +133,10 @@ public class EditEventsPanel extends javax.swing.JPanel {
         taDescription.setRows(5);
         jScrollPane2.setViewportView(taDescription);
 
-        jLabel8.setText("Published date (yyyy-dd-MMThh:mm:ss)");
+        jLabel8.setText("Published date (EEE, dd MMM yyyy HH:mm:ss Z)");
 
+        tfPublishedDate.setEnabled(false);
         tfPublishedDate.setName("Date"); // NOI18N
-
-        lbPublishedDateError.setForeground(new java.awt.Color(204, 0, 0));
-        lbPublishedDateError.setText("X");
 
         tfPicturePath.setEditable(false);
 
@@ -215,13 +212,10 @@ public class EditEventsPanel extends javax.swing.JPanel {
                                                 .addGroup(layout.createSequentialGroup()
                                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addGroup(layout.createSequentialGroup()
-                                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                                .addComponent(tfPublishedDate)
-                                                                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE))
-                                                            .addGap(18, 18, 18)
-                                                            .addComponent(lbPublishedDateError, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                            .addComponent(tfPublishedDate)
+                                                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                         .addComponent(btnUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE)
                                                         .addComponent(btnRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
@@ -274,9 +268,7 @@ public class EditEventsPanel extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(lbPublishedDateError, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(tfPublishedDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(tfPublishedDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(14, 14, 14)
                                 .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -295,7 +287,7 @@ public class EditEventsPanel extends javax.swing.JPanel {
                             .addComponent(btnChooseImage))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -304,13 +296,13 @@ public class EditEventsPanel extends javax.swing.JPanel {
             return;
         }
         try {
-            //String localPicturePath = uploadPicture();
+            String localPicturePath = uploadPicture();
             Event event = new Event(
                     tfTitle.getText().trim(),
                     tfLink.getText().trim(),
                     taDescription.getText().trim(),
-                    //localPicturePath,
-                    OffsetDateTime.parse(tfPublishedDate.getText().trim(), Event.DATE_FORMATTER)
+                    localPicturePath,
+                    OffsetDateTime.now()
             );
             eventRepository.create(event);
             eventsTableModel.setEvents(eventRepository.selectAll());
@@ -431,7 +423,6 @@ public class EditEventsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lbIcon;
     private javax.swing.JLabel lbLinkError;
     private javax.swing.JLabel lbPicturePathError;
-    private javax.swing.JLabel lbPublishedDateError;
     private javax.swing.JLabel lbTitleError;
     private javax.swing.JTextArea taDescription;
     private javax.swing.JTable tbArticles;
@@ -455,8 +446,8 @@ public class EditEventsPanel extends javax.swing.JPanel {
     }
 
     private void initValidation() {
-        validationFields = Arrays.asList(tfTitle, tfLink, taDescription, tfPublishedDate, tfPicturePath);
-        errorLabels = Arrays.asList(lbTitleError, lbLinkError, lbDescriptionError, lbPublishedDateError, lbPicturePathError);
+        validationFields = Arrays.asList(tfTitle, tfLink, taDescription, tfPicturePath);
+        errorLabels = Arrays.asList(lbTitleError, lbLinkError, lbDescriptionError, lbPicturePathError);
     }
 
     private void hideErrors() {
@@ -482,6 +473,7 @@ public class EditEventsPanel extends javax.swing.JPanel {
         for (int i = 0; i < validationFields.size(); i++) {
             ok &= !validationFields.get(i).getText().trim().isEmpty();
             errorLabels.get(i).setVisible(validationFields.get(i).getText().trim().isEmpty());
+            /*
             if ("Date".equals(validationFields.get(i).getName())) {
                 try {
                     OffsetDateTime.parse(validationFields.get(i).getText().trim(), Event.DATE_FORMATTER);
@@ -490,6 +482,7 @@ public class EditEventsPanel extends javax.swing.JPanel {
                     errorLabels.get(i).setVisible(true);
                 }
             }
+            */
         }
         return ok;
     }

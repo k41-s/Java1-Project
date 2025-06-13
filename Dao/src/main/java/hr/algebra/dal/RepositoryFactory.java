@@ -16,10 +16,6 @@ import java.util.logging.Logger;
  */
 public final class RepositoryFactory {
 
-    private static final Properties properties = new Properties();
-    private static final String PATH = "/config/repository.properties";
-    private static final String CLASS_NAME = "CLASS_NAME";
-
     // Load all into memory and have one method for each repo type
     
     private static Repository eventRepository;
@@ -27,8 +23,7 @@ public final class RepositoryFactory {
     private static Repository organiserRepository;
 
     static {
-        try (InputStream is = RepositoryFactory.class.getResourceAsStream(PATH)) {
-            properties.load(is);
+        try {
             eventRepository = (Repository) Class
                     .forName("hr.algebra.dal.sql.SqlEventRepository")
                     .getDeclaredConstructor()

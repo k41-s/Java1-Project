@@ -85,6 +85,11 @@ public class Venue implements Comparable<Venue>{
     }
 
     @Override
+    public String toString() {
+        return id + ": " + name + ", " + capacity;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 3;
         hash = 97 * hash + this.id;
