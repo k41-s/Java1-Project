@@ -6,6 +6,7 @@ package hr.algebra.view;
 
 import hr.algebra.dal.Repository;
 import hr.algebra.dal.RepositoryFactory;
+import hr.algebra.model.Channel;
 import hr.algebra.model.Event;
 import hr.algebra.model.EventArchive;
 import hr.algebra.model.User;
@@ -13,13 +14,10 @@ import hr.algebra.parsers.rss.EventParser;
 import hr.algebra.session.Session;
 import hr.algebra.utilities.JAXBUtils;
 import hr.algebra.utilities.MessageUtils;
-import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,16 +26,16 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * --
+ * 
  *
  * @author kaish
  */
 public class UploadEventsPanel extends javax.swing.JPanel {
 
     private static final String RSS_URL = "https://www.cedefop.europa.eu/en/publications.rss";
-
-    private User currentUser = Session.getCurrentUser();
-    private boolean isAdmin = currentUser.getIsAdmin();
+    private static final String FILENAME = "src/main/resources/eventarchive.xml";
+    
+    //private List<Event> events;
 
     /**
      * Creates new form UploadArticlesPanel
@@ -55,12 +53,20 @@ public class UploadEventsPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
         jScrollPane1 = new javax.swing.JScrollPane();
         lsArticles = new javax.swing.JList<>();
         btnUploadEvents = new javax.swing.JButton();
-        lbUsername = new javax.swing.JLabel();
-        JLabel1 = new javax.swing.JLabel();
         btnDeleteAll = new javax.swing.JButton();
+        btnSaveXml = new javax.swing.JButton();
+
+        jMenu1.setText("File");
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -77,13 +83,19 @@ public class UploadEventsPanel extends javax.swing.JPanel {
             }
         });
 
-        JLabel1.setText("Logged in as");
-
         btnDeleteAll.setBackground(new java.awt.Color(204, 0, 51));
+        btnDeleteAll.setForeground(java.awt.Color.white);
         btnDeleteAll.setText("Delete All Events");
         btnDeleteAll.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDeleteAllActionPerformed(evt);
+            }
+        });
+
+        btnSaveXml.setText("Save to XML file");
+        btnSaveXml.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveXmlActionPerformed(evt);
             }
         });
 
@@ -92,36 +104,28 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(14, 14, 14)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(JLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lbUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 525, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 525, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1160, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnSaveXml, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(61, 61, 61)
+                        .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1160, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(JLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSaveXml, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -144,9 +148,9 @@ public class UploadEventsPanel extends javax.swing.JPanel {
     private void JAXBParseEvents() throws MalformedURLException, JAXBException, Exception {
 
         // JAXB parsing of RSS feed
-        EventArchive eventArchive = JAXBUtils.loadRSS(EventArchive.class, RSS_URL);
+        EventArchive eventArchive = (EventArchive) JAXBUtils.loadRSS(EventArchive.class, RSS_URL);
         List<Event> events = eventArchive.getChannel().getEvents();
-        repository.createEvents(events);
+        eventRepository.create(events);
         loadModel();
     }
 
@@ -154,7 +158,7 @@ public class UploadEventsPanel extends javax.swing.JPanel {
 
         // Regular events parser
         List<Event> events = EventParser.parse();
-        repository.createEvents(events);
+        eventRepository.create(events);
         loadModel();
     }
 
@@ -179,28 +183,37 @@ public class UploadEventsPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnDeleteAllActionPerformed
 
+    private void btnSaveXmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveXmlActionPerformed
+        try {
+            List<Event> events = eventRepository.selectAll();
+            
+            JAXBUtils.save(new EventArchive(new Channel(events)), FILENAME);
+            MessageUtils.showInformationMessage("Info", "Events saved");
+        } catch (Exception ex) {
+            MessageUtils.showErrorMessage("Error", "Unable to save events");
+            Logger.getLogger(EventsOrganiserPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnSaveXmlActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel JLabel1;
     private javax.swing.JButton btnDeleteAll;
+    private javax.swing.JButton btnSaveXml;
     private javax.swing.JButton btnUploadEvents;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lbUsername;
     private javax.swing.JList<hr.algebra.model.Event> lsArticles;
     // End of variables declaration//GEN-END:variables
 
     private DefaultListModel<Event> eventsModel;
-    private Repository repository;
+    private Repository<Event> eventRepository;
 
     private void init() {
         try {
-            repository = RepositoryFactory.getRepository();
+            eventRepository = RepositoryFactory.getEventRepository();
             eventsModel = new DefaultListModel<>();
-
-            lbUsername.setText(currentUser.getUsername());
-            if (isAdmin) {
-                lbUsername.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            }
 
             loadModel();
         } catch (Exception ex) {
@@ -212,7 +225,7 @@ public class UploadEventsPanel extends javax.swing.JPanel {
 
     private void loadModel() throws Exception {
 
-        List<Event> events = repository.selectEvents();
+        List<Event> events = eventRepository.selectAll();
 
         EventQueue.invokeLater(() -> {
 
@@ -223,12 +236,12 @@ public class UploadEventsPanel extends javax.swing.JPanel {
     }
 
     private void deleteAllEvents() throws Exception {
-        List<Event> events = repository.selectEvents();
+        List<Event> events = eventRepository.selectAll();
 
         // For some reason using lambda made me try catch, the throws 
         // clause didn't fix the error so I looped like this
         for (Event event : events) {
-            repository.deleteEvent(event.getId());
+            eventRepository.delete(event.getId());
         }
 
     }

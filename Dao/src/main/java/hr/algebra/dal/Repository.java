@@ -4,7 +4,6 @@
  */
 package hr.algebra.dal;
 
-import hr.algebra.model.Event;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,18 +11,18 @@ import java.util.Optional;
  *
  * @author kaish
  */
-public interface Repository {
+public interface Repository<T> {
 
-    int createEvent(Event event) throws Exception;
+    int create(T t) throws Exception;
 
-    void createEvents(List<Event> events) throws Exception;
+    void create(List<T> list) throws Exception;
 
-    void updateEvent(int id, Event data) throws Exception;
+    void update(int id, T data) throws Exception;
 
-    void deleteEvent(int id) throws Exception;
+    void delete(int id) throws Exception;
 
-    Optional<Event> selectEvent(int id) throws Exception;
+    Optional<T> selectOne(int id) throws Exception;
 
-    List<Event> selectEvents() throws Exception;
+    List<T> selectAll() throws Exception;
 
 }

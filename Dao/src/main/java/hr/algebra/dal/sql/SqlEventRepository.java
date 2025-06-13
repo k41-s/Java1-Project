@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
 
-public class SqlRepository implements Repository {
+public class SqlEventRepository implements Repository<Event> {
 
     private static final String ID_EVENT = "IDEvent";
     private static final String TITLE = "Title";
@@ -24,8 +24,11 @@ public class SqlRepository implements Repository {
     private static final String DESCRIPTION = "Description";
     private static final String PICTURE_PATH = "PicturePath";
     private static final String PUBLISHED_DATE = "PublishedDate";
+    private static final String VENUE_ID = "VenueID";
+    private static final String ORGANISER_ID = "OrganiserID";
 
     private static final String CREATE_EVENT = "{ CALL createEvent (?,?,?,?,?,?) }";
+    private static final String CREATE_EVENT_FK = "{ CALL createEventWithFK (?,?,?,?,?,?,?,?) }";
     private static final String UPDATE_EVENT = "{ CALL updateEvent (?,?,?,?,?,?) }";
     private static final String DELETE_EVENT = "{ CALL deleteEvent (?) }";
     private static final String SELECT_EVENT = "{ CALL selectEvent (?) }";
@@ -33,7 +36,7 @@ public class SqlRepository implements Repository {
 
     // Events CRUD
     @Override
-    public int createEvent(Event event) throws Exception {
+    public int create(Event event) throws Exception {
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(CREATE_EVENT)) {
 
@@ -49,8 +52,26 @@ public class SqlRepository implements Repository {
         }
     }
 
+    public int createWithFK(Event event) throws Exception {
+        DataSource dataSource = DataSourceSingleton.getInstance();
+        try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(CREATE_EVENT_FK)) {
+
+            stmt.setString(TITLE, event.getTitle());
+            stmt.setString(LINK, event.getLink());
+            stmt.setString(DESCRIPTION, event.getDescription());
+            stmt.setString(PICTURE_PATH, event.getPicturePath());
+            stmt.setString(PUBLISHED_DATE, event.getPublishedDate().format(Event.DATE_FORMATTER));
+            stmt.setInt(VENUE_ID, event.getVenue().getId());
+            stmt.setInt(ORGANISER_ID, event.getOrganiser().getId());
+            stmt.registerOutParameter(ID_EVENT, Types.INTEGER);
+
+            stmt.executeUpdate();
+            return stmt.getInt(ID_EVENT);
+        }
+    }
+
     @Override
-    public void createEvents(List<Event> events) throws Exception {
+    public void create(List<Event> events) throws Exception {
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(CREATE_EVENT)) {
 
@@ -68,7 +89,7 @@ public class SqlRepository implements Repository {
     }
 
     @Override
-    public void updateEvent(int id, Event data) throws Exception {
+    public void update(int id, Event data) throws Exception {
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(UPDATE_EVENT)) {
 
@@ -84,7 +105,7 @@ public class SqlRepository implements Repository {
     }
 
     @Override
-    public void deleteEvent(int id) throws Exception {
+    public void delete(int id) throws Exception {
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(DELETE_EVENT)) {
 
@@ -95,7 +116,7 @@ public class SqlRepository implements Repository {
     }
 
     @Override
-    public Optional<Event> selectEvent(int id) throws Exception {
+    public Optional<Event> selectOne(int id) throws Exception {
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(SELECT_EVENT)) {
 
@@ -103,13 +124,17 @@ public class SqlRepository implements Repository {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 if (rs.next()) {
-                    return Optional.of(new Event(
+                    Event e = new Event(
                             rs.getInt(ID_EVENT),
                             rs.getString(TITLE),
                             rs.getString(LINK),
                             rs.getString(DESCRIPTION),
-                            //rs.getString(PICTURE_PATH),
-                            OffsetDateTime.parse(rs.getString(PUBLISHED_DATE), Event.DATE_FORMATTER)));
+                            rs.getString(PICTURE_PATH),
+                            OffsetDateTime.parse(rs.getString(PUBLISHED_DATE), Event.DATE_FORMATTER));
+                    e.setVenue(rs.getInt(VENUE_ID));
+                    e.setOrganiser(rs.getInt(ORGANISER_ID));
+
+                    return Optional.of(e);
                 }
             }
         }
@@ -117,19 +142,24 @@ public class SqlRepository implements Repository {
     }
 
     @Override
-    public List<Event> selectEvents() throws Exception {
+    public List<Event> selectAll() throws Exception {
         List<Event> events = new ArrayList<>();
         DataSource dataSource = DataSourceSingleton.getInstance();
         try (Connection con = dataSource.getConnection(); CallableStatement stmt = con.prepareCall(SELECT_EVENTS); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                events.add(new Event(
+                Event e = new Event(
                         rs.getInt(ID_EVENT),
                         rs.getString(TITLE),
                         rs.getString(LINK),
                         rs.getString(DESCRIPTION),
-                        //rs.getString(PICTURE_PATH),
-                        OffsetDateTime.parse(rs.getString(PUBLISHED_DATE), Event.DATE_FORMATTER)));
+                        rs.getString(PICTURE_PATH),
+                        OffsetDateTime.parse(rs.getString(PUBLISHED_DATE), Event.DATE_FORMATTER));
+                e.setVenue(rs.getInt(VENUE_ID));
+                e.setOrganiser(rs.getInt(ORGANISER_ID));
+
+                events.add(e);
+
             }
         }
         return events;

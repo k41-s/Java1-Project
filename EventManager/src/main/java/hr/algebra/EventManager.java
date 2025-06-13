@@ -7,6 +7,7 @@ package hr.algebra;
 import hr.algebra.model.User;
 import hr.algebra.session.Session;
 import hr.algebra.view.EditEventsPanel;
+import hr.algebra.view.EventsOrganiserPanel;
 import hr.algebra.view.UploadEventsPanel;
 import java.awt.Component;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
@@ -23,18 +25,16 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
- * @author daniel.bele
+ * @author kaish
  */
 public class EventManager extends javax.swing.JFrame {
 
     private static final String UPLOAD_EVENTS = "Upload events";
     private static final String EDIT_EVENTS = "Edit events";
+    private static final String EDIT_EVENTS_ORGS = "Edit events' organisers";
 
     private final User currentUser = Session.getCurrentUser();
     private final boolean isAdmin = currentUser.getIsAdmin();
-    
-    private final Component UploadPanel = new UploadEventsPanel();
-    private final Component EditPanel = new EditEventsPanel();
 
     /**
      * Creates new form ArticleManager
@@ -148,18 +148,27 @@ public class EventManager extends javax.swing.JFrame {
 
     private void configurePanels() {
         if (isAdmin) {
-            tpContent.add(UPLOAD_EVENTS, UploadPanel);
+            tpContent.add(UPLOAD_EVENTS, new UploadEventsPanel());
         } else {
-            tpContent.add(EDIT_EVENTS, EditPanel);
+            tpContent.add(EDIT_EVENTS, new EditEventsPanel());
+            tpContent.add(EDIT_EVENTS_ORGS, new EventsOrganiserPanel());
             // Other user panels go here when made
         }
     }
 
+    // Go through action, not for my project
     private JMenuItem createMenuItem(Action action, String text, KeyStroke accelerator) {
         JMenuItem menuItem = new JMenuItem();
         menuItem.setAction(action);
         menuItem.setText(text);
         menuItem.setAccelerator(accelerator);
+        return menuItem;
+    }
+
+    // Just to display text
+    private JMenuItem createMenuItem(String text) {
+        JMenuItem menuItem = new JMenuItem();
+        menuItem.setText(text);
         return menuItem;
     }
 
@@ -190,6 +199,10 @@ public class EventManager extends javax.swing.JFrame {
 
     // Figure this out
     private void configureMenuBar() {
-        
+        // Dynamic menu
+        Component itemShowUser = createMenuItem("Logged in as: " + currentUser.getUsername());
+        itemShowUser.setEnabled(false);
+        jMenuBar1.add(itemShowUser);
+
     }
 }

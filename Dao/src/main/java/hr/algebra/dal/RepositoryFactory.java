@@ -20,22 +20,45 @@ public final class RepositoryFactory {
     private static final String PATH = "/config/repository.properties";
     private static final String CLASS_NAME = "CLASS_NAME";
 
-    private static Repository repository;
+    // Load all into memory and have one method for each repo type
+    
+    private static Repository eventRepository;
+    private static Repository venueRepository;
+    private static Repository organiserRepository;
 
     static {
         try (InputStream is = RepositoryFactory.class.getResourceAsStream(PATH)) {
             properties.load(is);
-            repository = (Repository) Class
-                    .forName(properties.getProperty(CLASS_NAME))
+            eventRepository = (Repository) Class
+                    .forName("hr.algebra.dal.sql.SqlEventRepository")
                     .getDeclaredConstructor()
                     .newInstance();
+            
+            venueRepository = (Repository) Class
+                    .forName("hr.algebra.dal.sql.SqlVenueRepository")
+                    .getDeclaredConstructor()
+                    .newInstance();
+            
+            organiserRepository = (Repository) Class
+                    .forName("hr.algebra.dal.sql.SqlOrganiserRepository")
+                    .getDeclaredConstructor()
+                    .newInstance();
+            
         } catch (Exception ex) {
             Logger.getLogger(RepositoryFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public static Repository getRepository() {
-        return repository;
+    public static Repository getEventRepository() {
+        return eventRepository;
+    }
+
+    public static Repository getVenueRepository() {
+        return venueRepository;
+    }
+
+    public static Repository getOrganiserRepository() {
+        return organiserRepository;
     }
 
 }
