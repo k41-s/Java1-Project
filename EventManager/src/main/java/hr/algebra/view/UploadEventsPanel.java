@@ -18,6 +18,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +28,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * 
+ *
  *
  * @author kaish
  */
@@ -34,9 +36,8 @@ public class UploadEventsPanel extends javax.swing.JPanel {
 
     private static final String RSS_URL = "https://www.cedefop.europa.eu/en/publications.rss";
     private static final String FILENAME = "src/main/resources/eventarchive.xml";
-    
-    //private List<Event> events;
 
+    //private List<Event> events;
     /**
      * Creates new form UploadArticlesPanel
      */
@@ -121,10 +122,11 @@ public class UploadEventsPanel extends javax.swing.JPanel {
                 .addGap(28, 28, 28)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSaveXml, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSaveXml, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnUploadEvents, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnDeleteAll, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -186,7 +188,7 @@ public class UploadEventsPanel extends javax.swing.JPanel {
     private void btnSaveXmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveXmlActionPerformed
         try {
             List<Event> events = eventRepository.selectAll();
-            
+
             JAXBUtils.save(new EventArchive(new Channel(events)), FILENAME);
             MessageUtils.showInformationMessage("Info", "Events saved");
         } catch (Exception ex) {
@@ -236,11 +238,15 @@ public class UploadEventsPanel extends javax.swing.JPanel {
     }
 
     private void deleteAllEvents() throws Exception {
+
         List<Event> events = eventRepository.selectAll();
 
         // For some reason using lambda made me try catch, the throws 
         // clause didn't fix the error so I looped like this
         for (Event event : events) {
+            if (event.getPicturePath() != null) {
+                Files.deleteIfExists(Paths.get(event.getPicturePath()));
+            }
             eventRepository.delete(event.getId());
         }
 
