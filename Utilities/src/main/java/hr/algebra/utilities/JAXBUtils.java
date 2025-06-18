@@ -8,7 +8,6 @@ package hr.algebra.utilities;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -16,7 +15,7 @@ import javax.xml.bind.Unmarshaller;
 
 /**
  *
- * @author dnlbe
+ * @author kaish
  */
 public class JAXBUtils {
 
@@ -36,7 +35,7 @@ public class JAXBUtils {
         return (T)unmarshaller.unmarshal(new File(filename));
     }
 
-    public static<T> T  loadRSS(Class clazz, String rss_url) throws JAXBException, MalformedURLException {
+    public static<T> T  loadRSS(Class<T> clazz, String rss_url) throws JAXBException, MalformedURLException {
         JAXBContext context = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         return (T)unmarshaller.unmarshal(URI.create(rss_url).toURL());
