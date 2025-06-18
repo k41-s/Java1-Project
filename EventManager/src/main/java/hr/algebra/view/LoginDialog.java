@@ -5,13 +5,10 @@
 package hr.algebra.view;
 
 import hr.algebra.EventManager;
-import hr.algebra.dal.Repository;
-import hr.algebra.dal.RepositoryFactory;
 import hr.algebra.dal.sql.LoginService;
 import hr.algebra.model.User;
 import hr.algebra.session.Session;
 import hr.algebra.utilities.MessageUtils;
-import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.List;
@@ -30,13 +27,14 @@ public class LoginDialog extends javax.swing.JDialog {
     private List<JTextComponent> validationFields;
     private List<JLabel> errorLabels;
 
-    private Repository repository;
     private LoginService loginService;
 
     private User user;
 
     /**
      * Creates new form LoginDialog
+     * @param parent
+     * @param modal
      */
     public LoginDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -213,7 +211,6 @@ public class LoginDialog extends javax.swing.JDialog {
         try {
             initValidation();
             hideErrors();
-            initRepository();
             initLoginService();
         } catch (Exception ex) {
             Logger.getLogger(EditEventsPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -231,9 +228,6 @@ public class LoginDialog extends javax.swing.JDialog {
         errorLabels.forEach(e -> e.setVisible(false));
     }
 
-    private void initRepository() {
-        repository = RepositoryFactory.getEventRepository();
-    }
 
     private void initLoginService() {
         loginService = new LoginService();
